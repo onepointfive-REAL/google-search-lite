@@ -88,7 +88,7 @@
 </header>
 
 <input type="text" id="query" placeholder="Search query..."><br>
-<button id="search-button">Search</button>
+<button id="search-button" onclick="searchgoogle()">Search</button>
 
 <div id="results"></div>
 <div id="pagination">
@@ -112,7 +112,7 @@ const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 
 // 3DS-safe onclick search
-document.getElementById('search-button').onclick = function() {
+function searchgoogle() {
   const query = document.getElementById('query').value.trim();
   if (!query) return;
   currentQuery = query;
