@@ -122,7 +122,7 @@ input[type="text"] {
   <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo">
 </header>
 
-<input type="text" id="query" placeholder="Search query...">
+<input type="text" id="query" placeholder="Search query..." />
 <button id="search-button">Search</button>
 
 <div id="results"></div>
@@ -142,77 +142,61 @@ const CSE_ID = '101dd4ea922d245aa';
 let currentQuery = '';
 let startIndex = 1;
 
-const resultsDiv = document.getElementById('results');
-const paginationDiv = document.getElementById('pagination');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-const searchBtn = document.getElementById('search-button');
-
-searchBtn.onclick = function() {
-  const query = document.getElementById('query').value.trim();
-  if (!query) return; // do nothing if empty
+function search(query) {
   currentQuery = query;
-  startIndex = 1;
-  search(currentQuery);
-};
-
-prevBtn.addEventListener('click', () => {
-  if (startIndex > 1) {
-    startIndex -= 10;
-    search(currentQuery);
-  }
-});
-
-nextBtn.addEventListener('click', () => {
-  startIndex += 10;
-  search(currentQuery);
-});
-
-async function search(query) {
-  resultsDiv.innerHTML = '<p>Loading...</p>';
-  paginationDiv.style.display = 'none'; // hide pagination while loading
-
-  try {
-    const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CSE_ID}&q=${encodeURIComponent(query)}&start=${startIndex}`);
-    const data = await res.json();
-    renderResults(data.items);
-
-    // Show pagination after search
-    paginationDiv.style.display = 'block';
-    prevBtn.disabled = startIndex <= 1;
-    nextBtn.disabled = !data.items || data.items.length < 10;
-
-  } catch (err) {
-    resultsDiv.innerHTML = '<p>Error fetching results.</p>';
-    console.error(err);
-  }
+  const script = document.createElement('script');
+  script.src = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CSE_ID}&q=${encodeURIComponent(query)}&start=${startIndex}&callback=handleResults`;
+  document.body.appendChild(script);
 }
 
-function renderResults(items) {
-  if (!items || items.length === 0) {
+function handleResults(data) {
+  const resultsDiv = document.getElementById('results');
+  const paginationDiv = document.getElementById('pagination');
+  paginationDiv.style.display = 'block';
+
+  if (!data.items || data.items.length === 0) {
     resultsDiv.innerHTML = '<p>No results found.</p>';
     return;
   }
 
   resultsDiv.innerHTML = '';
 
-  items.forEach(item => {
+  data.items.forEach(item => {
     const div = document.createElement('div');
     div.classList.add('result');
-    div.style.marginBottom = '10px';
-    div.style.paddingBottom = '10px';
+    div.style.marginBottom = '30px';
     div.style.borderBottom = '1px solid #e0e0e0';
-
     div.innerHTML = `
-      <a href="${item.link}" target="_blank" style="font-size:18px; color:#1a0dab; text-decoration:none; display:block; margin-bottom:2px;">${item.title}</a>
-      <div class="url" style="font-size:14px; color:#006621; margin-bottom:5px;">${item.displayLink}</div>
-      <div class="snippet" style="font-size:14px; color:#4d5156;">${item.snippet}</div>
+      <a href="${item.link}" style="font-size:18px; color:#1a0dab; text-decoration:none; display:block; margin-bottom:4px; line-height:1.3;">${item.title}</a>
+      <div class="url" style="font-size:14px; color:#006621; margin-bottom:8px; line-height:1.3;">${item.displayLink}</div>
+      <div class="snippet" style="font-size:14px; color:#4d5156; line-height:1.5;">${item.snippet}</div>
     `;
-
     resultsDiv.appendChild(div);
   });
+
+  document.getElementById('prev').disabled = startIndex <= 1;
+  document.getElementById('next').disabled = !data.items || data.items.length < 10;
 }
 
+// Button click
+document.getElementById('search-button').onclick = function() {
+  const query = document.getElementById('query').value.trim();
+  if (!query) return;
+  startIndex = 1;
+  search(query);
+};
+
+// Pagination buttons
+document.getElementById('prev').onclick = function() {
+  if (startIndex > 1) {
+    startIndex -= 10;
+    search(currentQuery);
+  }
+};
+document.getElementById('next').onclick = function() {
+  startIndex += 10;
+  search(currentQuery);
+};
 
 
 </script>
