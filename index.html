@@ -146,12 +146,18 @@ const paginationDiv = document.getElementById('pagination');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  currentQuery = document.getElementById('query').value;
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault(); // stop default submission (no refresh)
+  
+  const query = document.getElementById('query').value.trim();
+  if (!query) return; // do nothing if empty
+  
+  currentQuery = query;
   startIndex = 1;
-  search(currentQuery);
+  search(currentQuery); // call search function
 });
+
 
 prevBtn.addEventListener('click', () => {
   if (startIndex > 1) {
