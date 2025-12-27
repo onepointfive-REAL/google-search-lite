@@ -35,16 +35,20 @@
     align-items: center;
   }
 
-  input[type="text"] {
-    width: 100%;
-    padding: 10px 20px;
-    font-size: 18px;
-    border: 1px solid #dfe1e5;
-    border-radius: 24px;
-    outline: none;
-    box-shadow: 0 1px 6px rgba(32,33,36,.28);
-    font-family: 'Roboto', Arial, sans-serif;
-  }
+input[type="text"] {
+  width: 90%;          /* almost full width but not huge */
+  max-width: 400px;    /* limit width on wider screens */
+  padding: 10px 20px;
+  font-size: 18px;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  outline: none;
+  box-shadow: 0 1px 6px rgba(32,33,36,.28);
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0 auto;      /* center input */
+  display: block;
+}
+
 
   button {
     margin-top: 20px;
@@ -118,10 +122,8 @@
   <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo">
 </header>
 
-<form id="search-form">
-  <input type="text" id="query" placeholder="Search query..." required>
-  <button type="submit">Search</button>
-</form>
+<input type="text" id="query" placeholder="Search query...">
+<button id="search-button">Search</button>
 
 <div id="results"></div>
 <div id="pagination">
@@ -140,24 +142,19 @@ const CSE_ID = '101dd4ea922d245aa';
 let currentQuery = '';
 let startIndex = 1;
 
-const form = document.getElementById('search-form');
 const resultsDiv = document.getElementById('results');
 const paginationDiv = document.getElementById('pagination');
 const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
+const searchBtn = document.getElementById('search-button');
 
-
-form.addEventListener('submit', function(e) {
-  e.preventDefault(); // stop default submission (no refresh)
-  
+searchBtn.onclick = function() {
   const query = document.getElementById('query').value.trim();
   if (!query) return; // do nothing if empty
-  
   currentQuery = query;
   startIndex = 1;
-  search(currentQuery); // call search function
-});
-
+  search(currentQuery);
+};
 
 prevBtn.addEventListener('click', () => {
   if (startIndex > 1) {
