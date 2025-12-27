@@ -4,83 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Google Search Lite</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-  body {
-    font-family: 'Roboto', Arial, sans-serif;
-    background: #fff;
-    color: #202124;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-  }
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background: #fff;
+  color: #202124;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
 
-  header {
-    margin-top: 80px;
-  }
+header {
+  margin-top: 80px;
+}
 
-  header img {
-    width: 272px;
-    margin-bottom: 40px;
-  }
+header img {
+  width: 272px;
+  margin-bottom: 40px;
+}
 
-  #query {
-    width: 90%;
-    max-width: 400px;
-    padding: 10px 20px;
-    font-size: 18px;
-    border: 1px solid #dfe1e5;
-    border-radius: 24px;
-    outline: none;
-    box-shadow: 0 1px 6px rgba(32,33,36,.28);
-    font-family: 'Roboto', Arial, sans-serif;
-    margin-bottom: 20px;
-  }
+#query {
+  width: 90%;
+  max-width: 400px;
+  padding: 10px 20px;
+  font-size: 18px;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  outline: none;
+  box-shadow: 0 1px 6px rgba(32,33,36,.28);
+  margin-bottom: 20px;
+}
 
-  #search-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    box-shadow: 0 1px 2px rgba(32,33,36,.28);
-    font-family: 'Roboto', Arial, sans-serif;
-    margin-bottom: 30px;
-  }
+#search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(32,33,36,.28);
+  margin-bottom: 30px;
+}
 
-  #results {
-    max-width: 650px;
-    margin: 0 auto;
-    text-align: left;
-  }
+#results {
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: left;
+}
 
-  .result {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
+.result {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
 
-  footer {
-    margin-top: 50px;
-    font-size: 12px;
-    color: #70757a;
-    padding-bottom: 30px;
-  }
+#pagination {
+  margin: 20px 0;
+  display: none;
+}
 
-  #pagination {
-    margin: 20px 0;
-    display: none;
-  }
+#pagination button {
+  margin: 0 5px;
+  padding: 8px 14px;
+  font-size: 16px;
+}
 
-  #pagination button {
-    margin: 0 5px;
-    padding: 8px 14px;
-    font-size: 16px;
-    font-family: 'Roboto', Arial, sans-serif;
-  }
+footer {
+  margin-top: 50px;
+  font-size: 12px;
+  color: #70757a;
+  padding-bottom: 30px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -91,9 +91,10 @@
 <button id="search-button" onclick="searchgoogle()">Search</button>
 
 <div id="results"></div>
+
 <div id="pagination">
-  <button id="prev" disabled>Previous</button>
-  <button id="next" disabled>Next</button>
+  <button onclick="prevPage()">Previous</button>
+  <button onclick="nextPage()">Next</button>
 </div>
 
 <footer>
@@ -101,81 +102,93 @@
 </footer>
 
 <script>
-const API_KEY = 'AIzaSyBWt_Ro_232tB77nnOswu1dE8NrJK7Kr7s';   // Replace with your API key 
-const CSE_ID = '101dd4ea922d245aa';     // Replace with your CSE ID
-let currentQuery = '';
-let startIndex = 1;
+/* ===== CONFIG ===== */
+var API_KEY = 'AIzaSyBWt_Ro_232tB77nnOswu1dE8NrJK7Kr7s';
+var CSE_ID  = '101dd4ea922d245aa';
 
-const resultsDiv = document.getElementById('results');
-const paginationDiv = document.getElementById('pagination');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
+/* ===== STATE ===== */
+var currentQuery = '';
+var startIndex = 1;
 
-// 3DS-safe onclick search
+/* ===== SEARCH ===== */
 function searchgoogle() {
-  const query = document.getElementById('query').value.trim();
-  if (!query) return;
-  currentQuery = query;
-  startIndex = 1;
-  search(currentQuery);
-};
+  var q = document.getElementById('query').value;
+  if (!q) return;
 
-// Pagination
-prevBtn.onclick = function() {
+  currentQuery = q;
+  startIndex = 1;
+  doSearch();
+}
+
+function doSearch() {
+  document.getElementById('results').innerHTML = 'Loading...';
+  document.getElementById('pagination').style.display = 'none';
+
+  var s = document.createElement('script');
+  s.src =
+    'https://www.googleapis.com/customsearch/v1' +
+    '?key=' + API_KEY +
+    '&cx=' + CSE_ID +
+    '&q=' + encodeURIComponent(currentQuery) +
+    '&start=' + startIndex +
+    '&callback=handleResults';
+
+  document.body.appendChild(s);
+}
+
+/* ===== PAGINATION ===== */
+function prevPage() {
   if (startIndex > 1) {
     startIndex -= 10;
-    search(currentQuery);
+    doSearch();
   }
-};
+}
 
-nextBtn.onclick = function() {
+function nextPage() {
   startIndex += 10;
-  search(currentQuery);
-};
-
-// JSONP search
-function search(query) {
-  paginationDiv.style.display = 'none';
-  resultsDiv.innerHTML = '<p>Loading...</p>';
-
-  const script = document.createElement('script');
-  script.src = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CSE_ID}&q=${encodeURIComponent(query)}&start=${startIndex}&callback=handleResults`;
-  document.body.appendChild(script);
+  doSearch();
 }
 
-// Callback for JSONP
+/* ===== CALLBACK ===== */
 function handleResults(data) {
-  const items = data.items || [];
+  var items = data.items;
   renderResults(items);
-  paginationDiv.style.display = 'block';
-  prevBtn.disabled = startIndex <= 1;
-  nextBtn.disabled = !items.length || items.length < 10;
+
+  if (items && items.length) {
+    document.getElementById('pagination').style.display = 'block';
+  }
 }
 
-// Your requested renderResults style
+/* ===== RENDER ===== */
 function renderResults(items) {
+  var resultsDiv = document.getElementById('results');
+
   if (!items || items.length === 0) {
-    resultsDiv.innerHTML = '<p>No results found.</p>';
+    resultsDiv.innerHTML = 'No results found.';
     return;
   }
 
   resultsDiv.innerHTML = '';
 
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.classList.add('result');
-    div.style.marginBottom = '10px';
-    div.style.paddingBottom = '10px';
-    div.style.borderBottom = '1px solid #e0e0e0';
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var div = document.createElement('div');
+    div.className = 'result';
 
-    div.innerHTML = `
-      <a href="${item.link}" style="font-size:18px; color:#1a0dab; text-decoration:none; display:block; margin-bottom:2px;">${item.title}</a>
-      <div class="url" style="font-size:14px; color:#006621; margin-bottom:5px;">${item.displayLink}</div>
-      <div class="snippet" style="font-size:14px; color:#4d5156;">${item.snippet}</div>
-    `;
+    div.innerHTML =
+      '<a href="' + item.link + '" ' +
+      'style="font-size:18px;color:#1a0dab;text-decoration:none;display:block;margin-bottom:2px;">' +
+      item.title +
+      '</a>' +
+      '<div style="font-size:14px;color:#006621;margin-bottom:5px;">' +
+      item.displayLink +
+      '</div>' +
+      '<div style="font-size:14px;color:#4d5156;">' +
+      item.snippet +
+      '</div>';
 
     resultsDiv.appendChild(div);
-  });
+  }
 }
 </script>
 
